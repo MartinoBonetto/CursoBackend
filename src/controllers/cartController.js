@@ -1,51 +1,87 @@
-import Cart from '../models/Cart.js';
+// controllers/cartController.js
+import Cart from '../models/Cart.js'; // Asegúrate de importar el modelo de carrito
+import Product from '../models/Product.js'; // Asegúrate de importar el modelo de producto
 
-export const createNewCart = async (req, res) => {
+// Eliminar un producto de un carrito
+export const removeProductFromCartById = async (req, res) => {
+    const { cid, pid } = req.params;
     try {
-        const newCart = new Cart({ products: [] });
-        await newCart.save();
-        res.json({ status: 'success', payload: newCart });
+        const cart = await Cart.findById(cid);
+        if (!cart) {
+            return res.status(404).send({ status: 'error', message: 'Carrito no encontrado' });
+        }
+
+        const productIndex = cart.products.indexOf(pid);
+        if (productIndex === -1) {
+            return res.status(404).send({ status: 'error', message: 'Producto no encontrado en el carrito' });
+        }
+
+        cart.products.splice(productIndex, 1); // Eliminar el producto del carrito
+        await cart.save();
+        res.status(200).send({ status: 'success', payload: cart });
     } catch (error) {
-        res.json({ status: 'error', message: error.message });
+        res.status(500).send({ status: 'error', message: error.message });
     }
 };
 
-export const addProductToCartById = async (req, res) => {
+// Actualizar la cantidad de un producto en el carrito
+export const updateProductQuantityInCart = async (req, res) => {
     const { cid, pid } = req.params;
     const { quantity } = req.body;
 
     try {
         const cart = await Cart.findById(cid);
-        cart.products.push({ product: pid, quantity });
-        await cart.save();
-        res.json({ status: 'success', message: 'Product added to cart' });
-    } catch (error) {
-        res.json({ status: 'error', message: error.message });
-    }
-};
+        if (!cart) {
+            return res.status(404).send({ status: 'error', message: 'Carrito no encontrado' });
+        }
 
-export const removeProductFromCartById = async (req, res) => {
-    const { cid, pid } = req.params;
+        const product = cart.products.find(p => p.toString() === pid);
+        if (!product) {
+            return res.status(404).send({ status: 'error', message: 'Producto no encontrado en el carrito' });
+        }
 
-    try {
-        const cart = await Cart.findById(cid);
-        cart.products = cart.products.filter(product => product.product.toString() !== pid);
+        // Actualizar la cantidad de producto (lógica no mostrada)
+        // Debes implementar la lógica según tus necesidades
+
         await cart.save();
-        res.json({ status: 'success', message: 'Product removed from cart' });
+        res.status(200).send({ status: 'success', payload: cart });
     } catch (error) {
-        res.json({ status: 'error', message: error.message });
+        res.status(500).send({ status: 'error', message: error.message });
     }
 };
 
 export const clearAllProductsFromCart = async (req, res) => {
     const { cid } = req.params;
+    try {
+        const cart = await Cart.findById(cid);
+        if (!cart) {
+            return res.status(404).send({ status: 'error', message: 'Carrito no encontrado' });
+        }
+
+        cart.products = []; // Vaciar todos los productos del carrito
+        await cart.save();
+        res.status(200).send({ status: 'success', payload: cart });
+    } catch (error) {
+        res.status(500).send({ status: 'error', message: error.message });
+    }
+};
+
+
+// Actualizar todos los productos de un carrito
+export const updateCart = async (req, res) => {
+    const { cid } = req.params;
+    const { products } = req.body;
 
     try {
         const cart = await Cart.findById(cid);
-        cart.products = [];
+        if (!cart) {
+            return res.status(404).send({ status: 'error', message: 'Carrito no encontrado' });
+        }
+
+        cart.products = products; // Actualiza todos los productos
         await cart.save();
-        res.json({ status: 'success', message: 'All products cleared from cart' });
+        res.status(200).send({ status: 'success', payload: cart });
     } catch (error) {
-        res.json({ status: 'error', message: error.message });
+        res.status(500).send({ status: 'error', message: error.message });
     }
 };

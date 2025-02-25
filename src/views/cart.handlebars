@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito de Compras</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/products">Productos</a></li>
+                <li><a href="/realtimeproducts">Productos en Tiempo Real</a></li>
+                <li><a href="/cart">Carrito</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h1>Carrito de Compras</h1>
+
+        {{#if cartItems.length}}
+        <ul id="cart-list">
+            {{#each cartItems}}
+            <li id="cart-item-{{this._id}}">
+                <span>{{this.name}} - ${{this.price}} x {{this.quantity}}</span>
+                <button class="remove-from-cart-btn" onclick="removeFromCart('{{this._id}}')">Eliminar</button>
+            </li>
+            {{/each}}
+        </ul>
+        <p><strong>Total: ${{totalPrice}}</strong></p>
+        {{else}}
+        <p>No hay productos en el carrito.</p>
+        {{/if}}
+
+        <button onclick="checkout()">Finalizar Compra</button>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Mi Tienda. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        const socket = io();
+
+        // Función para eliminar un producto del carrito
+        function removeFromCart(productId) {
+            fetch(`/api/carts/1/product/${productId}`, { method: 'DELETE' })
+                .then(response => response.json())
+                .then(data => {
+                    alert('Producto eliminado del carrito');
+                    document.getElementById(`cart-item-${productId}`).remove();
+                    socket.emit('productRemovedFromCart', productId);
+                })
+                .catch(error => {
+                    console.error('Error removing product:', error);
+                });
+        }
+
+        // Función para finalizar la compra
+        function checkout() {
+            fetch('/api/carts/1/checkout', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    alert('Compra realizada');
+                    // Limpiar el carrito en la interfaz de usuario
+                    document.getElementById('cart-list').innerHTML = '';
+                })
+                .catch(error => {
+                    console.error('Error during checkout:', error);
+                });
+        }
+
+        // Escuchar los eventos de WebSocket para actualizaciones en tiempo real
+        socket.on('productRemovedFromCart', (productId) => {
+            const productElement = document.getElementById(`cart-item-${productId}`);
+            if (productElement) {
+                productElement.remove();
+            }
+        });
+    </script>
+</body>
+</html>

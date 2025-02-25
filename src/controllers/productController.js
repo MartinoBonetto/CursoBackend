@@ -6,7 +6,7 @@ export const getAllProducts = async (req, res) => {
     try {
         let filter = {};
         if (query) {
-            filter = { category: query };
+            filter = { $or: [{ category: query }, { status: query === 'true' }] }; // Busqueda por categoría o disponibilidad
         }
 
         const products = await Product.paginate(filter, {
@@ -24,53 +24,9 @@ export const getAllProducts = async (req, res) => {
             page: products.page,
             hasPrevPage: products.hasPrevPage,
             hasNextPage: products.hasNextPage,
-            prevLink: products.hasPrevPage ? `/products?page=${products.prevPage}` : null,
-            nextLink: products.hasNextPage ? `/products?page=${products.nextPage}` : null,
+            prevLink: products.hasPrevPage ? `/products?page=${products.prevPage}&limit=${limit}&sort=${sort}&query=${query}` : null,
+            nextLink: products.hasNextPage ? `/products?page=${products.nextPage}&limit=${limit}&sort=${sort}&query=${query}` : null,
         });
-    } catch (error) {
-        res.json({ status: 'error', message: error.message });
-    }
-};
-
-export const createProduct = async (req, res) => {
-    const { title, description, price, category, stock, status, code } = req.body;
-
-    try {
-        const newProduct = new Product({
-            title,
-            description,
-            price,
-            category,
-            stock,
-            status,
-            code,
-        });
-
-        await newProduct.save();
-        res.json({ status: 'success', payload: newProduct });
-    } catch (error) {
-        res.json({ status: 'error', message: error.message });
-    }
-};
-
-export const updateProductById = async (req, res) => {
-    const { pid } = req.params;
-    const updatedProduct = req.body;
-
-    try {
-        const product = await Product.findByIdAndUpdate(pid, updatedProduct, { new: true });
-        res.json({ status: 'success', payload: product });
-    } catch (error) {
-        res.json({ status: 'error', message: error.message });
-    }
-};
-
-export const deleteProductById = async (req, res) => {
-    const { pid } = req.params;
-
-    try {
-        await Product.findByIdAndDelete(pid);
-        res.json({ status: 'success', message: 'Product deleted' });
     } catch (error) {
         res.json({ status: 'error', message: error.message });
     }

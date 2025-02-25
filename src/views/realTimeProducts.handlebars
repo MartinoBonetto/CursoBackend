@@ -3,44 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agregar Productos</title>
-    <link rel="stylesheet" href="/styles.css"> <!-- Estilos -->
+    <title>Productos en Tiempo Real</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
     <header>
-        <h1>Agregar Nuevo Producto</h1>
+        <nav>
+            <ul>
+                <li><a href="/products">Productos</a></li>
+                <li><a href="/realtimeproducts">Productos en Tiempo Real</a></li>
+                <li><a href="/cart">Carrito</a></li>
+            </ul>
+        </nav>
     </header>
 
-    <section>
-        <form id="product-form">
-            <label for="product-name">Nombre del Producto:</label>
-            <input type="text" id="product-name" name="name" required>
+    <main>
+        <h1>Productos en Tiempo Real</h1>
 
-            <label for="product-price">Precio del Producto:</label>
-            <input type="number" id="product-price" name="price" required>
+        <ul id="real-time-products">
+            {{#each products}}
+            <li id="real-time-product-{{this._id}}">
+                <img src="{{getFirstThumbnail this.thumbnails}}" alt="Thumbnail del producto" width="100">
+                <span>{{this.name}} - ${{this.price}}</span>
+                <button class="add-to-cart-btn" onclick="addToCart('{{this._id}}')">Agregar al Carrito</button>
+            </li>
+            {{/each}}
+        </ul>
+    </main>
 
-            <button type="submit">Agregar Producto</button>
-        </form>
-    </section>
+    <footer>
+        <p>&copy; 2025 Mi Tienda. Todos los derechos reservados.</p>
+    </footer>
 
-    <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
 
-        // Enviar evento para agregar el producto al servidor
-        document.getElementById('product-form').addEventListener('submit', (event) => {
-            event.preventDefault();
-            
-            const product = {
-                name: document.getElementById('product-name').value,
-                price: document.getElementById('product-price').value
-            };
-            
-            socket.emit('addProduct', product); // Emitir el evento para agregar producto
+        // Función para agregar productos al carrito
+        function addToCart(productId) {
+            fetch(`/api/carts/1/product/${productId}`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    alert('Producto agregado al carrito');
+                });
+        }
 
-            // Limpiar el formulario
-            document.getElementById('product-name').value = '';
-            document.getElementById('product-price').value = '';
+        // Escuchar los eventos de WebSocket para actualizaciones en tiempo real
+        socket.on('productAdded', (product) => {
+            const productList = document.getElementById('real-time-products');
+            const newProduct = document.createElement('li');
+            newProduct.id = `real-time-product-${product._id}`;
+            newProduct.innerHTML = `
+                <img src="${product.thumbnails[0]}" alt="Thumbnail del producto" width="100">
+                <span>${product.name} - $${product.price}</span>
+                <button class="add-to-cart-btn" onclick="addToCart('${product._id}')">Agregar al Carrito</button>
+            `;
+            productList.appendChild(newProduct);
+        });
+
+        socket.on('productRemoved', (productId) => {
+            const productElement = document.getElementById(`real-time-product-${productId}`);
+            if (productElement) {
+                productElement.remove();
+            }
         });
     </script>
 </body>
