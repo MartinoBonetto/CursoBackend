@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Tienda</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/products">Productos</a></li>
+                <li><a href="/realtimeproducts">Productos en Tiempo Real</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        {{{body}}} <!-- Aquí se inyecta el contenido específico de cada vista -->
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Mi Tienda. Todos los derechos reservados.</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!-- productDetail.handlebars -->
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del Producto</title>
+</head>
+
+<body>
+    <h1>Detalle del Producto: {{product.title}}</h1>
+    <p><strong>Descripción:</strong> {{product.description}}</p>
+    <p><strong>Precio:</strong> ${{product.price}}</p>
+    <p><strong>Categoría:</strong> {{product.category}}</p>
+    <p><strong>Stock:</strong> {{product.stock}}</p>
+
+    <button onclick="addToCart('{{product._id}}')">Agregar al carrito</button>
+
+    <script>
+        // Función para agregar productos al carrito
+        function addToCart(productId) {
+            fetch(`/api/carts/1/product/${productId}`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    alert('Producto agregado al carrito');
+                });
+        }
+    </script>
+</body>
+
+</html>

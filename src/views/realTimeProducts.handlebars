@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agregar Productos</title>
+    <link rel="stylesheet" href="/styles.css"> <!-- Estilos -->
+</head>
+<body>
+    <header>
+        <h1>Agregar Nuevo Producto</h1>
+    </header>
+
+    <section>
+        <form id="product-form">
+            <label for="product-name">Nombre del Producto:</label>
+            <input type="text" id="product-name" name="name" required>
+
+            <label for="product-price">Precio del Producto:</label>
+            <input type="number" id="product-price" name="price" required>
+
+            <button type="submit">Agregar Producto</button>
+        </form>
+    </section>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        // Enviar evento para agregar el producto al servidor
+        document.getElementById('product-form').addEventListener('submit', (event) => {
+            event.preventDefault();
+            
+            const product = {
+                name: document.getElementById('product-name').value,
+                price: document.getElementById('product-price').value
+            };
+            
+            socket.emit('addProduct', product); // Emitir el evento para agregar producto
+
+            // Limpiar el formulario
+            document.getElementById('product-name').value = '';
+            document.getElementById('product-price').value = '';
+        });
+    </script>
+</body>
+</html>

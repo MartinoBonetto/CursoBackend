@@ -1,0 +1,31 @@
+
+[
+    {
+        "id": 1,
+        "title": "Smartphone XYZ",
+        "description": "Smartphone de última generación.",
+        "code": "XYZ123",
+        "price": 300,
+        "status": true,
+        "stock": 50,
+        "category": "Electrónica",
+        "thumbnails": [
+            "https://example.com/image1.jpg",
+            "https://example.com/image2.jpg"
+        ]
+    },
+    {
+        "id": 2,
+        "title": "Laptop ABC",
+        "description": "Laptop portátil para trabajo y juegos.",
+        "code": "ABC456",
+        "price": 800,
+        "status": true,
+        "stock": 30,
+        "category": "Computadoras",
+        "thumbnails": [
+            "https://example.com/laptop1.jpg",
+            "https://example.com/laptop2.jpg"
+        ]
+    }
+]
